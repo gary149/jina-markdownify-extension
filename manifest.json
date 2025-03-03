@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "Markdownify with Jina Reader",
+  "version": "1.0",
+  "icons": {
+    "128": "icon.png"
+  },
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "clipboardWrite",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://r.jina.ai/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
