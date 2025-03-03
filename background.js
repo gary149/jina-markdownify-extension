@@ -1,17 +1,9 @@
-// Create the context menu item
-chrome.contextMenus.create({
-  id: "markdownify",
-  title: "Markdownify with Jina Reader",
-  contexts: ["page"],
-});
-
-// Listen for context menu clicks
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (info.menuItemId === "markdownify") {
-    // Show processing toast
-    chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      func: () => {
+// Function to markdownify the current page
+function markdownifyPage(tab) {
+  // Show processing toast
+  chrome.scripting.executeScript({
+    target: { tabId: tab.id },
+    func: () => {
         // Remove any existing toast containers
         document
           .querySelectorAll(".markdownify-toast-container")
@@ -71,11 +63,13 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
       },
     });
 
-    const currentUrl = info.pageUrl;
-    const fetchUrl = `https://r.jina.ai/${encodeURIComponent(currentUrl)}`;
+    // Get the current URL
+    chrome.tabs.get(tab.id, (tabInfo) => {
+      const currentUrl = tabInfo.url;
+      const fetchUrl = `https://r.jina.ai/${encodeURIComponent(currentUrl)}`;
 
-    // Fetch content from the constructed URL
-    fetch(fetchUrl)
+      // Fetch content from the constructed URL
+      fetch(fetchUrl)
       .then((response) => {
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -199,5 +193,24 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
           },
         });
       });
+    });
+}
+
+// Create the context menu item
+chrome.contextMenus.create({
+  id: "markdownify",
+  title: "Markdownify with Jina Reader",
+  contexts: ["page"],
+});
+
+// Listen for context menu clicks
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "markdownify") {
+    markdownifyPage(tab);
   }
+});
+
+// Listen for toolbar icon clicks
+chrome.action.onClicked.addListener((tab) => {
+  markdownifyPage(tab);
 });
